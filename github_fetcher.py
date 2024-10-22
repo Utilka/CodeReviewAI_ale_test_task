@@ -48,7 +48,8 @@ def get_repo_tree(owner, repo_name, branch='main'):
     api_url = f"https://api.github.com/repos/{owner}/{repo_name}/git/trees/{branch}?recursive=1"
     return make_github_request(api_url)
 
-def download_file(owner, repo_name, file_path):
+# TODO make asynchronous
+def fetch_file(owner, repo_name, file_path):
     """
     Fetches the content of a file from the repository.
     """
@@ -58,26 +59,26 @@ def download_file(owner, repo_name, file_path):
     return file_data
 
 
-def fetch_text_files(owner, repo_name, file_paths):
+def fetch_list_text_files(owner, repo_name, textfile_paths):
     """
     Fetches content for all text files in the given list of file paths.
 
     Returns:
-        dict: A dictionary where the keys are file paths and values are the file contents.
+        dict: A dictionary where the keys a
+        re file paths and values are the file contents.
     """
     files = {}
-    for file_path in file_paths:
-        if utils.is_text_file(file_path):
-            try:
-                print(f"Fetching file: {file_path}")
-                file_data = download_file(owner, repo_name, file_path)
+    for file_path in textfile_paths:
+        try:
+            print(f"Fetching file: {file_path}")
+            file_data = fetch_file(owner, repo_name, file_path)
 
-                # Decode the file content (base64 encoded)
-                file_text = base64.b64decode(file_data['content']).decode('utf-8')
+            # Decode the file content (base64 encoded)
+            file_text = base64.b64decode(file_data['content']).decode('utf-8')
 
-                files[file_path] = file_text
-            except Exception as e:
-                print(f"Failed to fetch or process {file_path}: {e}")
+            files[file_path] = file_text
+        except Exception as e:
+            print(f"Failed to fetch or process {file_path}: {e}")
     return files
 
 
@@ -94,9 +95,9 @@ def fetch_repo(repo_url):
     # Extract paths of all files (blobs) and build the directory tree
     file_paths = [item['path'] for item in repo_tree['tree'] if item['type'] == 'blob']
 
-
-    # Merge cleartext file contents
-    files_content = fetch_text_files(owner, repo_name, file_paths)
+    textfile_paths = [item for item in file_paths if utils.is_text_file(item)]
+    # Fetch all cleartext file contents
+    files_content = fetch_list_text_files(owner, repo_name, textfile_paths)
 
     # Merge the fetched file contents into a single string
     merged_code = utils.merge_file_contents(files_content)
