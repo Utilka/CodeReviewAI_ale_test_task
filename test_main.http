@@ -1,8 +1,15 @@
-# Test your FastAPI endpoints
+POST http://127.0.0.1:8000/review
+Content-Type: application/json
+
+{
+  "assignment_description": "write Hello World program",
+  "github_repo_url": "https://github.com/Utilka/Test_Repository",
+  "candidate_level": "middle"
+}
 
 ###
 
-POST http://127.0.0.1:8000/review?assignment_description=jija&github_repo_url=https://github.com/Utilka/Test_Repository&candidate_level=juNior
-Accept: application/json
+#POST http://127.0.0.1:8000/review?assignment_description=jija&github_repo_url=https://github.com/Utilka/Test_Repository&candidate_level=juNior
+#Accept: application/json
 
 ###

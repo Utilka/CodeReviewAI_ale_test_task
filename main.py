@@ -1,8 +1,10 @@
-from fastapi import FastAPI, Query, Depends,HTTPException
+from fastapi import FastAPI, Query, Depends, HTTPException, Body
 from pydantic import BaseModel, Field, validator, HttpUrl, field_validator
 from enum import Enum
+from dataclasses import asdict
 
 from github_fetcher import fetch_repo
+from openAI_reviewer import get_code_review
 
 app = FastAPI()
 
@@ -24,7 +26,7 @@ class CandidateLevel(str,Enum):
 
     #make the field case-insensitive
     @classmethod
-    def _missing_(cls, value):
+    def _missing_(cls, value:str):
         value = value.lower()
         for member in cls:
             if member.lower() == value:
@@ -32,10 +34,9 @@ class CandidateLevel(str,Enum):
         return None
 
 class DefaultModel(BaseModel):
-    assignment_description:str = Field(Query(...,description="Description of the assignment."))
-    github_repo_url:HttpUrl = Field(Query(...,description="URL pointing to the target repository."))
-    candidate_level:CandidateLevel = Field(Query(...,description="Competency of the candidate"))
-
+    assignment_description: str = Field(..., description="Description of the assignment.")
+    github_repo_url: HttpUrl = Field(..., description="URL pointing to the target repository.")
+    candidate_level: CandidateLevel = Field(..., description="Competency level of the candidate.")
 
     @field_validator('github_repo_url')
     def validate_github_repo_url(cls, value: HttpUrl) -> HttpUrl:
@@ -47,7 +48,10 @@ class DefaultModel(BaseModel):
         return value
 
 @app.post("/review")
-async def code_review(params:DefaultModel=Depends()):
+async def code_review(params: DefaultModel):
     repo = fetch_repo(str(params.github_repo_url))
-
-    return {"message": f"{repo}"}
+    review = get_code_review(repo.merged_code, params.assignment_description, params.candidate_level)
+    return {
+        "repository": asdict(repo),
+        "review": asdict(review)
+    }

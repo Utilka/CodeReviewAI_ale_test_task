@@ -1,6 +1,9 @@
-import requests
-import os
 import base64
+import os
+from dataclasses import dataclass
+from typing import List
+
+import requests
 
 import utils
 
@@ -29,7 +32,8 @@ def make_github_request(url):
     else:
         raise Exception(f"Failed to retrieve data from {url}: {response.status_code} {response.text}")
 
-def get_repo_info(repo_url:str):
+
+def get_repo_info(repo_url: str):
     """
     Fetches metadata of a repository based on its URL.
     """
@@ -41,12 +45,14 @@ def get_repo_info(repo_url:str):
     api_url = f"https://api.github.com/repos/{owner}/{repo_name}"
     return make_github_request(api_url)
 
+
 def get_repo_tree(owner, repo_name, branch='main'):
     """
     Fetches the file tree of a repository for the given branch.
     """
     api_url = f"https://api.github.com/repos/{owner}/{repo_name}/git/trees/{branch}?recursive=1"
     return make_github_request(api_url)
+
 
 # TODO make asynchronous
 def fetch_file(owner, repo_name, file_path):
@@ -82,8 +88,15 @@ def fetch_list_text_files(owner, repo_name, textfile_paths):
     return files
 
 
-def fetch_repo(repo_url):
+@dataclass
+class Repository:
+    owner: str
+    repo_name: str
+    file_paths: List[str]
+    merged_code: str
 
+
+def fetch_repo(repo_url):
     # verify repo exists and is readable by fetching it's metadata
     repo_info = get_repo_info(repo_url)
     owner = repo_info['owner']['login']
@@ -101,13 +114,14 @@ def fetch_repo(repo_url):
 
     # Merge the fetched file contents into a single string
     merged_code = utils.merge_file_contents(files_content)
-    repository = {
-        "owner": owner,
-        "repo_name": repo_name,
-        "file_paths": file_paths,
-        "merged_code": merged_code
-    }
+    repository = Repository(
+        owner=owner,
+        repo_name=repo_name,
+        file_paths=file_paths,
+        merged_code=merged_code
+    )
     return repository
+
 
 def main():
     repo_url = "https://github.com/Utilka/Test_Repository/"
