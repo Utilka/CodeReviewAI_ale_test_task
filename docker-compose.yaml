@@ -1,0 +1,19 @@
+version: '3'
+services:
+  fast-api:
+    build: .
+#    command: gunicorn -b 0.0.0.0:8000 todosapp.wsgi:application
+#    depends_on:
+#      - postgres
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "8000:80"
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GITHUB_API_KEY: ${GITHUB_API_KEY}
+#  postgres:
+#    image: postgres:9.6.2-alpine
+#    environment:
+#      POSTGRES_USER: todoapp
+#      POSTGRES_DB: todos

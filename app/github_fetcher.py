@@ -5,7 +5,7 @@ from typing import List
 
 import requests
 
-import utils
+from . import utils
 
 ACCESS_TOKEN = os.getenv('GITHUB_ACCESS_TOKEN')
 

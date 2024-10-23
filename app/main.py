@@ -3,9 +3,8 @@ from enum import Enum
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field, HttpUrl, field_validator
 
-from github_fetcher import fetch_repo
-from openAI_reviewer import get_code_review
-
+from .github_fetcher import fetch_repo
+from .openAI_reviewer import get_code_review
 app = FastAPI()
 
 # Endpoint Specification:
