@@ -1,7 +1,7 @@
-from fastapi import FastAPI, Query, Depends, HTTPException, Body
-from pydantic import BaseModel, Field, validator, HttpUrl, field_validator
 from enum import Enum
-from dataclasses import asdict
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field, HttpUrl, field_validator
 
 from github_fetcher import fetch_repo
 from openAI_reviewer import get_code_review
@@ -52,6 +52,8 @@ async def code_review(params: DefaultModel):
     repo = fetch_repo(str(params.github_repo_url))
     review = get_code_review(repo.merged_code, params.assignment_description, params.candidate_level)
     return {
-        "repository": asdict(repo),
-        "review": asdict(review)
+        "Found files": repo.file_paths,
+        "Downsides/Comments": review.downsides_comments,
+        "Rating": review.rating,
+        "Conclusion": review.conclusion,
     }

@@ -87,9 +87,7 @@ def main():
 
     # Print the code review
     print("Code Review:\n")
-    for item in review:
-        print(item)
-    # print(review)
+    print(review)
 
 
 if __name__ == "__main__":
