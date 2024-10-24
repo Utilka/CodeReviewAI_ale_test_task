@@ -6,7 +6,6 @@ from typing import List
 import requests
 
 from . import utils
-
 ACCESS_TOKEN = os.getenv('GITHUB_ACCESS_TOKEN')
 
 def make_github_request(url):
@@ -38,7 +37,9 @@ def get_repo_info(repo_url: str):
     Fetches metadata of a repository based on its URL.
     """
     try:
-        owner, repo_name = repo_url.rstrip('/').split('/')[-2:]
+        site = "https://github.com/"
+        location = repo_url.replace("https://github.com/","")
+        owner, repo_name = location.rstrip('/').split('/')[-2:]
     except ValueError:
         raise ValueError("Invalid GitHub repository URL format. It should be 'https://github.com/owner/repo'.")
 
@@ -122,19 +123,3 @@ def fetch_repo(repo_url):
     )
     return repository
 
-
-def main():
-    repo_url = "https://github.com/Utilka/Test_Repository/"
-    repository = fetch_repo(repo_url)
-
-    # Print the directory tree
-    directory_tree = utils.build_directory_tree(repository["file_paths"])
-    directory_tree_string = utils.print_directory_tree(directory_tree)
-    print(directory_tree_string)
-
-    print("\nMerged Content of Text Files:\n")
-    print(repository["merged_code"])
-
-
-if __name__ == '__main__':
-    main()

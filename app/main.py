@@ -48,7 +48,13 @@ class DefaultModel(BaseModel):
 
 @app.post("/review")
 async def code_review(params: DefaultModel):
-    repo = fetch_repo(str(params.github_repo_url))
+    try:
+        repo = fetch_repo(str(params.github_repo_url))
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
     review = get_code_review(repo.merged_code, params.assignment_description, params.candidate_level)
     return {
         "Found files": repo.file_paths,

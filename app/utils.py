@@ -15,7 +15,7 @@ def build_directory_tree(file_paths):
     return tree
 
 
-def print_directory_tree(tree, indent=""):
+def format_directory_tree(tree, indent=""):
     """
     Recursively generates a string representation of the directory tree.
     """
@@ -24,7 +24,7 @@ def print_directory_tree(tree, indent=""):
         tree_string += f"{indent}├── {key}\n"
         if isinstance(value, dict):
             # Add files/subdirectories with increased indentation
-            tree_string += print_directory_tree(value, indent + "    ")
+            tree_string += format_directory_tree(value, indent + "    ")
     return tree_string
 
 

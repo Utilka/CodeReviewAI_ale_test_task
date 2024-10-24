@@ -66,7 +66,7 @@ def get_code_review(code, assigment, reviewed_level):
                         "and should be held to corresponding standard"
                         f"Their assigment was: {assigment}"
                         "Your current task is to draw conclusions on the provided code repository, and suggest ways to improve it."
-                        "do not propose user to continue the conversation, this message is final in it"},
+                        "Do not propose user to continue the conversation, this message is final in it"},
             {"role": "user", "content": code},
 
             {"role": "assistant", "content": downsides_comments_completion.choices[0].message.content},
@@ -81,14 +81,3 @@ def get_code_review(code, assigment, reviewed_level):
 
     return review
 
-
-def main():
-    review = get_code_review(test_repo, "write a hello world program", "Junior")
-
-    # Print the code review
-    print("Code Review:\n")
-    print(review)
-
-
-if __name__ == "__main__":
-    main()
