@@ -16,6 +16,9 @@ fastapi = "^0.115.3"
 pydantic = "^2.9.2"
 openai = "^1.52.1"
 uvicorn = "^0.32.0"
+redis = "^5.1.1"
+aioredis = "^2.0.1"
+setuptools = "^75.2.0"
 
 
 [tool.poetry.group.dev.dependencies]

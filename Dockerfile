@@ -29,5 +29,5 @@ COPY ./app /app
 COPY ./README.md /
 
 # Command to run the app
-#CMD ["bash"]
-CMD ["poetry", "run", "start"]
+CMD ["bash"]
+#CMD ["poetry", "run", "start"]
