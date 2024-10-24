@@ -1,8 +1,8 @@
+# tests/test_reviwer.py
 import pytest
 from unittest.mock import patch, MagicMock
 from dataclasses import dataclass
 from app.openAI_reviewer import get_code_review, Review
-
 
 mock_review = Review(
     downsides_comments="The code is functional but lacks comments and documentation.",
@@ -20,9 +20,9 @@ print("Hello World from test directory!")
 print("Hello World!")
 """
 
-def test_get_code_review():
+@pytest.mark.asyncio
+async def test_get_code_review():
     # Sample input
-
     assignment = "write a hello world program"
     reviewed_level = "Junior"
 
@@ -40,7 +40,7 @@ def test_get_code_review():
     conclusion_mock_response.choices[0].message.content = mock_review.conclusion
 
     # Patch the OpenAI API calls
-    with patch('app.openAI_reviewer.client.chat.completions.create') as mock_create:
+    with patch('app.openAI_reviewer.openai.chat.completions.create') as mock_create:
         # Set the side effects to return our mock responses in order
         mock_create.side_effect = [
             downsides_mock_response,
@@ -49,7 +49,7 @@ def test_get_code_review():
         ]
 
         # Call the function under test
-        review = get_code_review(code, assignment, reviewed_level)
+        review = await get_code_review(code, assignment, reviewed_level)
 
         # Assertions to check if the outputs are as expected
         assert isinstance(review, Review)
