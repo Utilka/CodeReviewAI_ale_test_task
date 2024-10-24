@@ -8,6 +8,10 @@ Content-Type: application/json
 }
 
 ###
+GET http://127.0.0.1:8000/
+Content-Type: application/json
+
+###
 
 #POST http://127.0.0.1:8000/review?assignment_description=jija&github_repo_url=https://github.com/Utilka/Test_Repository&candidate_level=juNior
 #Accept: application/json
