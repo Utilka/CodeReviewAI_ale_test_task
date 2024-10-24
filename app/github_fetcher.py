@@ -76,7 +76,7 @@ def fetch_list_text_files(owner, repo_name, textfile_paths):
     files = {}
     for file_path in textfile_paths:
         try:
-            print(f"Fetching file: {file_path}")
+            print(f"Fetching abiba file: {file_path}")
             file_data = fetch_file(owner, repo_name, file_path)
 
             # Decode the file content (base64 encoded)

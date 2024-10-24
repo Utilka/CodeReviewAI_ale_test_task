@@ -1,11 +1,63 @@
+import sys
 from enum import Enum
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi_cache.decorator import cache
 from pydantic import BaseModel, Field, HttpUrl, field_validator
 
 from .github_fetcher import fetch_repo
 from .openAI_reviewer import get_code_review
+
+from fastapi_cache import FastAPICache,decorator
+import hashlib
+
+
 app = FastAPI()
+
+def setup_cache(app):
+    def request_key_builder(
+            func,
+            namespace: str = "",
+            request: Request = None,
+            response: Response = None,
+            *args,
+            **kwargs,
+    ):
+
+        print(f"aaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        # body_hash = hashlib.md5(await request.body()).hexdigest() if request.method in ["post", "put"] else ""
+        #
+        # print(f"jija cache request body: {await request.body()}")
+        # print(f"jija cache request hash: {body_hash}")
+        return ":".join([
+            namespace,
+            request.method.lower(),
+            request.url.path,
+            repr(sorted(request.query_params.items())),
+            # body_hash
+        ])
+
+    @app.on_event("startup")
+    async def startup():
+
+        print(f"startup aaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        if 'win' in sys.platform:
+            from fastapi_cache.backends.inmemory import InMemoryBackend
+            FastAPICache.init(InMemoryBackend())
+        else:
+            from redis import asyncio as aioredis
+            from fastapi_cache.backends.redis import RedisBackend
+            # logger.info("Connecting to Redis")
+            redis = aioredis.from_url("redis://redis:6379/0")
+            if not redis:
+                raise Exception("Cannot connect to Redis")
+            FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+            print("jija successfully initialised")
+
+    return request_key_builder
+
+keybuilder = setup_cache(app)
+
 
 # Endpoint Specification:
 # POST /review - Accept the following data in the request body:
@@ -47,7 +99,9 @@ class DefaultModel(BaseModel):
         return value
 
 @app.post("/review")
+@cache(expire=3600,key_builder = keybuilder)
 async def code_review(params: DefaultModel):
+    print("aboba request recieved")
     repo = fetch_repo(str(params.github_repo_url))
     review = get_code_review(repo.merged_code, params.assignment_description, params.candidate_level)
     return {
@@ -56,3 +110,4 @@ async def code_review(params: DefaultModel):
         "Rating": review.rating,
         "Conclusion": review.conclusion,
     }
+
